@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if nginx -t >/dev/null ; then
+	nginx -s reload
+fi

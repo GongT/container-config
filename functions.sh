@@ -30,6 +30,7 @@ function fs_socks {
 		echo -n "\"${FOLDER}/$i\" "
 	done
 	echo -n "; chown -R ${C_USER}:${C_USER} ${FOLDER} "
+	echo -n "; chmod 0775 ${FOLDER} "
 	echo -n "; chmod 0777 "
 	for i in "$@"; do
 		echo -n "\"${FOLDER}/$i\" "
@@ -127,9 +128,10 @@ function docker_run {
 			echo "  remove..."
 			docker rm "${NAME}" >/dev/null
 		elif echo "$*" | grep -q "restart" ; then
-			echo "  restart..."
+			echo "  stop..."
 			docker stop "${NAME}" &>/dev/null
-			sleep 1
+			sleep 2
+			echo "  start..."
 			docker start "${NAME}" &>/dev/null
 			return
 		else
@@ -202,4 +204,12 @@ function mkdirp {
 	if [ ! -e "$1" ]; then
 		mkdir -p "$1"
 	fi
+}
+function st_cp {
+	cp "$@"
+	
+	local LAST="${@: -1}"
+	chown -R 0:0 "${LAST}"
+	find "${LAST}" -type d | xargs -r chmod 0555
+	find "${LAST}" -type f | xargs -r chmod 0444
 }

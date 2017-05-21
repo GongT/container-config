@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 function certbot {
 	docker run --rm -it \
 		-v /data/letsencrypt:/etc/letsencrypt \

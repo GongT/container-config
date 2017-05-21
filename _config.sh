@@ -13,15 +13,15 @@ fi
 
 
 mkdirp ./docker-storage/nginx/config/
-cp -fr ./configs/nginx/* ./docker-storage/nginx/config/
+st_cp -fr ./configs/nginx/etc/* ./docker-storage/nginx/config/
 
 mkdirp ./docker-storage/mysql/config/
-cp -f ./configs/my.cnf ./docker-storage/mysql/config/
+st_cp -f ./configs/my.cnf ./docker-storage/mysql/config/
 
 mkdirp ./docker-storage/php
-cp -fr ./configs/php/config/* ./docker-storage/php
+st_cp -fr ./configs/php/config/* ./docker-storage/php
 
-cp -fr ./configs/dnsmasq ./docker-storage
+st_cp -fr ./configs/dnsmasq ./docker-storage
 
 mkdirp ./docker-storage/wordpress
 pushd ./docker-storage/wordpress

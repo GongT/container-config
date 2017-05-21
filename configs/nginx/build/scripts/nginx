@@ -1,0 +1,4 @@
+#!/bin/sh
+
+# this file only run in docker
+exec /usr/sbin/nginx -c /data/nginx/config/nginx.conf "$@"
