@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 CONNECT_FOLDER=/var/run/docker-connect
+CONNECT_FOLDER_IN=/var/run/docker-connect
 
 function docker_init {
 	NAME=""
@@ -13,7 +14,7 @@ function docker_init {
 	LINKS=()
 	C_USER=1000
 	SOCKS_FOLDER=
-	volume "${CONNECT_FOLDER}" "${CONNECT_FOLDER}"
+	volume "${CONNECT_FOLDER}" "${CONNECT_FOLDER_IN}"
 }
 
 function fs_operation {
@@ -49,7 +50,7 @@ function fs_fix {
 function docker_machine {
 	docker run --rm -it \
 		"-v=/data:/data" \
-		"-v=${CONNECT_FOLDER}:${CONNECT_FOLDER}" \
+		"-v=${CONNECT_FOLDER}:${CONNECT_FOLDER_IN}" \
 		alpine "$@"
 }
 function connect_folder {
@@ -118,8 +119,13 @@ function image_build {
 	return ${RET}
 }
 
+DEBUG=
+if echo "$*" | grep -qF -- "-d" ; then
+	DEBUG=yes
+fi
+
 function docker_run {
-	echo "<< ${NAME}"
+	echo "<< ${NAME} DEBUG=${DEBUG}"
 	if docker inspect --type=container "${NAME}" &>/dev/null ; then
 		echo "exists..."
 		if echo "$*" | grep -q "remove" ; then
@@ -158,11 +164,16 @@ function docker_run {
 		RUN_ARGUMENTS+=("--link=$i")
 	done
 	
+	local RC=()
+	if [ -z "${DEBUG}" ]; then
+		RC=("-d" "--restart=always" "--log-driver=journald")
+	else
+		RC=("--rm" "-it" "--restart=no")
+	fi
+	
 	echo "  create and run..."
 	start docker run \
-		"-d" \
-		"--restart=always" \
-		"--log-driver=journald" \
+		"${RC[@]}" \
 		"--name=${NAME}" \
 		"--user=${C_USER}" \
 		"${RUN_ARGUMENTS[@]}" \
@@ -173,7 +184,7 @@ function docker_run {
 
 function start {
 	echo -ne "\e[38;5;14m"
-	echo "${0} ${1} ${2} ${3}"
+	echo "${0} ${1} ${2} ${3} \\"
 	local WRAP=/bin/false
 	local LAST=${#}
 	for i in $( seq 4 ${LAST} ); do
@@ -200,6 +211,11 @@ function die {
 	exit 1
 }
 
+function datadir {
+	chown -R 1000:1000 "${1}"
+	find "${1}" -type d | xargs -r chmod 0555
+	find "${1}" -type f | xargs -r chmod 0444
+}
 function mkdirp {
 	if [ ! -e "$1" ]; then
 		mkdir -p "$1"

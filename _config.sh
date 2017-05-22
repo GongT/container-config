@@ -11,12 +11,13 @@ if ! mountpoint ./docker-storage &>/dev/null ; then
 	mount -t nfs docker:/data ./docker-storage/ || die "can not mount 'docker:/data' to current directory"
 fi
 
+mkdirp ./docker-storage/mongodb
+datadir ./docker-storage/mongodb
+mkdirp ./docker-storage/mysql
+datadir ./docker-storage/mysql
 
 mkdirp ./docker-storage/nginx/config/
 st_cp -fr ./configs/nginx/etc/* ./docker-storage/nginx/config/
-
-mkdirp ./docker-storage/mysql/config/
-st_cp -f ./configs/my.cnf ./docker-storage/mysql/config/
 
 mkdirp ./docker-storage/php
 st_cp -fr ./configs/php/config/* ./docker-storage/php

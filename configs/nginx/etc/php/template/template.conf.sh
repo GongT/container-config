@@ -11,6 +11,9 @@ fastcgi_pass unix:/var/run/docker-connect/php-fpm/${UPSTREAM}.sock;
 include fastcgi_params;
 XXX
 	cat << XXX > "../${UPSTREAM}-pathinfo.conf"
+location ~ \.php$ {
+	include php/${UPSTREAM}-pass.conf;
+}
 location ~ \.php/ {
 	fastcgi_split_path_info ^(/index.php)(/?.+|)$;
 	fastcgi_param PATH_INFO \$fastcgi_path_info;
@@ -18,13 +21,10 @@ location ~ \.php/ {
 	include php/${UPSTREAM}-pass.conf;
 }
 XXX
-
 	cat << XXX > "../${UPSTREAM}.conf"
 location ~ \.php$ {
 	include php/${UPSTREAM}-pass.conf;
 }
-
-include php/${UPSTREAM}-pathinfo.conf;
 XXX
 }
 
